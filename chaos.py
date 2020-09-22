@@ -1,5 +1,7 @@
+#!/usr/bin/python3
 import inspect
 import os
+import sys
 import requests
 import tempfile
 import threading
@@ -13,6 +15,11 @@ from selenium.webdriver.common.keys import Keys
 from terminaltables import AsciiTable, SingleTable
 from threading import Lock
 from time import sleep
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+
+
 
 
 class CHAOS:
@@ -24,6 +31,7 @@ class CHAOS:
         self.driver = webdriver.Chrome(options=self.options)
         self.driver.maximize_window()
         self.driver.get(self.base_url)
+        #sleep(3)
         self.table_list = []
         self.all_urls = []
         self.threads = []
@@ -31,7 +39,6 @@ class CHAOS:
         self.piped = piped
 
     def run(self):
-        sleep(2)
         if self.piped:
             for element in self.driver.find_elements_by_tag_name("input"):
                 zip_url = element.get_attribute("value")
@@ -91,6 +98,7 @@ class CHAOS:
 
     def search(self, searchtherm, timeout=0.075):
         search_field = self.driver.find_element_by_id("search_input")
+        WebDriverWait(self.driver, 10).until(EC.element_to_be_clickable((By.ID, "search_input")))
         for l in searchtherm:
             search_field.send_keys(l)
             sleep(timeout)
@@ -113,6 +121,7 @@ class CHAOS:
 
 
 if __name__ == "__main__":
-    c = CHAOS(piped=False)
-    c.search("rabobank")
+    c = CHAOS(piped=True)
+    c.search(sys.argv[1])
     c.run()
+    c.driver.quit()
